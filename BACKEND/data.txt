@@ -1,0 +1,5 @@
+mongodb username: web-nti-project
+
+mongodb password: iiGrEj27zwwF0l9I
+
+mongodb+srv://web-nti-project:iiGrEj27zwwF0l9I@cluster0.cefnylj.mongodb.net/?appName=Cluster0
