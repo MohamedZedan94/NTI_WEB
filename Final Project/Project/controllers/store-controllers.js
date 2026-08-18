@@ -80,7 +80,6 @@ const updateStore = async (req, res) => {
             });
         }
 
-        // Only the store's owner is allowed to update it
         if (existingStore.owner.toString() !== req.userId) {
             if (req.file) {
                 await deleteUploadedFile("stores", req.file.filename);
@@ -93,7 +92,7 @@ const updateStore = async (req, res) => {
 
         const oldImage = existingStore.image;
         const updateData = { ...req.body };
-        delete updateData.owner; // owner can never be changed via update
+        delete updateData.owner; 
 
         if (req.file) {
             updateData.image = req.file.filename;
@@ -134,7 +133,6 @@ const deleteStore = async (req, res) => {
             });
         }
 
-        // Only the store's owner is allowed to delete it
         if (existingStore.owner.toString() !== req.userId) {
             return res.status(403).json({
                 status: "error",
@@ -148,8 +146,7 @@ const deleteStore = async (req, res) => {
             await deleteUploadedFile("stores", deletedStore.image);
         }
 
-        // Cascade delete: remove every product that belonged to this store,
-        // along with each product's uploaded image
+  
         const productsToDelete = await Product.find({ store: deletedStore._id });
         for (const product of productsToDelete) {
             if (product.image && product.image !== "default-product.png") {

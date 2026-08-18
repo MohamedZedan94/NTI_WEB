@@ -81,7 +81,6 @@ const getProductById = async (req, res) => {
 
 const updateProduct = async (req, res) => {
     try {
-        // If the request is trying to change the store, make sure the new store exists
         if (req.body.store) {
             const storeExists = await Store.findById(req.body.store);
             if (!storeExists) {
@@ -118,8 +117,7 @@ const updateProduct = async (req, res) => {
             runValidators: true,
         });
 
-        // Clean up the old image only after a successful update, and only
-        // if a new image actually replaced it
+     
         if (req.file && oldImage && oldImage !== "default-product.png") {
             await deleteUploadedFile("products", oldImage);
         }
