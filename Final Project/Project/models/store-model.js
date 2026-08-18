@@ -30,10 +30,16 @@ const storeSchema = new mongoose.Schema({
             ],
         },
     },
-    
-     image: {
+
+    image: {
         type: String,
         default: "default-store.png",
+    },
+
+    owner: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: [true, "Store must belong to an owner"],
     },
 }, {
     timestamps: true,

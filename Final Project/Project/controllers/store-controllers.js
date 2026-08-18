@@ -1,4 +1,5 @@
 const Store = require("../models/store-model");
+const Product = require("../models/product-model");
 const deleteUploadedFile = require("../utils/delete-uploaded-file");
 
 
@@ -8,7 +9,9 @@ const getAllStores = async (req, res) => {
         res.status(200).json({
             status: "success",
             count: stores.length,
-            data: { stores },
+            data: {
+                stores,
+            },
         });
     } catch (error) {
         res.status(500).json({
@@ -20,7 +23,7 @@ const getAllStores = async (req, res) => {
 
 const createStore = async (req, res) => {
     try {
-        const newStore = new Store(req.body);   // 🔧 تعديل 2: بدل Store.create()
+        const newStore = new Store({ ...req.body, owner: req.userId });
         if (req.file) {
             newStore.image = req.file.filename;
         }
@@ -28,7 +31,9 @@ const createStore = async (req, res) => {
         res.status(201).json({
             status: "success",
             message: "Store created successfully",
-            data: { store: savedStore },
+            data: {
+                store: savedStore,
+            },
         });
     } catch (error) {
         if (req.file) {
@@ -64,7 +69,7 @@ const getStoreById = async (req, res) => {
 
 const updateStore = async (req, res) => {
     try {
-        const existingStore = await Store.findById(req.params.id);   // 🔧 تعديل 1 و 3
+        const existingStore = await Store.findById(req.params.id);
         if (!existingStore) {
             if (req.file) {
                 await deleteUploadedFile("stores", req.file.filename);
@@ -75,8 +80,20 @@ const updateStore = async (req, res) => {
             });
         }
 
+        // Only the store's owner is allowed to update it
+        if (existingStore.owner.toString() !== req.userId) {
+            if (req.file) {
+                await deleteUploadedFile("stores", req.file.filename);
+            }
+            return res.status(403).json({
+                status: "error",
+                message: "You are not allowed to update this store",
+            });
+        }
+
         const oldImage = existingStore.image;
         const updateData = { ...req.body };
+        delete updateData.owner; // owner can never be changed via update
 
         if (req.file) {
             updateData.image = req.file.filename;
@@ -109,13 +126,24 @@ const updateStore = async (req, res) => {
 
 const deleteStore = async (req, res) => {
     try {
-        const deletedStore = await Store.findByIdAndDelete(req.params.id);
-        if (!deletedStore) {
+        const existingStore = await Store.findById(req.params.id);
+        if (!existingStore) {
             return res.status(404).json({
                 status: "error",
                 message: "Store not found",
             });
         }
+
+        // Only the store's owner is allowed to delete it
+        if (existingStore.owner.toString() !== req.userId) {
+            return res.status(403).json({
+                status: "error",
+                message: "You are not allowed to delete this store",
+            });
+        }
+
+        const deletedStore = await Store.findByIdAndDelete(req.params.id);
+
         if (deletedStore.image && deletedStore.image !== "default-store.png") {
             await deleteUploadedFile("stores", deletedStore.image);
         }

@@ -10,6 +10,8 @@ const diskStorage = multer.diskStorage({
             dest = "uploads/stores";
         } else if (req.baseUrl.includes("products")) {
             dest = "uploads/products";
+        } else if (req.baseUrl.includes("auth")) {
+            dest = "uploads/users";
         }
 
         try {
@@ -28,6 +30,8 @@ const diskStorage = multer.diskStorage({
             filename = `store-${Date.now()}.${fileType}`;
         } else if (req.baseUrl.includes("products")) {
             filename = `product-${Date.now()}.${fileType}`;
+        } else if (req.baseUrl.includes("auth")) {
+            filename = `user-${Date.now()}.${fileType}`;
         }
         cb(null, filename);
     }
