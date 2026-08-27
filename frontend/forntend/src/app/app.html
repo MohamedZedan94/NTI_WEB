@@ -1,0 +1,214 @@
+<div class="container">
+
+  <h1>Team Manager</h1>
+
+  <!-- Add Employee -->
+
+  <div class="form">
+
+    <input
+      type="text"
+      placeholder="Name"
+      [(ngModel)]="newEmployee.name"
+    >
+
+    <input
+      type="number"
+      placeholder="Age"
+      [(ngModel)]="newEmployee.age"
+    >
+
+    <select [(ngModel)]="newEmployee.department">
+
+      @for (department of departments; track department) {
+
+        <option [value]="department">
+          {{ department }}
+        </option>
+
+      }
+
+    </select>
+
+    <label>
+
+      <input
+        type="checkbox"
+        [(ngModel)]="newEmployee.available"
+      >
+
+      Available
+
+    </label>
+
+    <button (click)="addEmployee()">
+      Add Member
+    </button>
+
+  </div>
+
+
+  <!-- Filter -->
+
+  <div class="controls">
+
+    <select [(ngModel)]="selectedDepartment">
+
+      <option value="All">
+        All Departments
+      </option>
+
+      @for (department of departments; track department) {
+
+        <option [value]="department">
+          {{ department }}
+        </option>
+
+      }
+
+    </select>
+
+
+    <button
+      (click)="viewMode = 'card'"
+    >
+      Card View
+    </button>
+
+    <button
+      (click)="viewMode = 'list'"
+    >
+      List View
+    </button>
+
+  </div>
+
+
+  <!-- Employees -->
+
+  @if (employees.length === 0) {
+
+    <h2>No team members</h2>
+
+  } @else {
+
+    @if (getFilteredEmployees().length === 0) {
+
+      <h2>No members found</h2>
+
+    } @else {
+
+      @switch (viewMode) {
+
+        <!-- CARD VIEW -->
+
+        @case ('card') {
+
+          <div class="cards">
+
+            @for (
+              employee of getFilteredEmployees();
+              track employee.id
+            ) {
+
+              <div class="card">
+
+                <h2>
+                  {{ employee.name }}
+                </h2>
+
+                <p>
+                  Age: {{ employee.age }}
+                </p>
+
+                <p>
+                  Department: {{ employee.department }}
+                </p>
+
+
+                @if (employee.available) {
+
+                  <p class="available">
+                    ✔ Available
+                  </p>
+
+                } @else {
+
+                  <p class="unavailable">
+                    ✖ Unavailable
+                  </p>
+
+                }
+
+
+                <button
+                  (click)="toggleAvailability(employee)"
+                >
+                  Toggle Availability
+                </button>
+
+              </div>
+
+            }
+
+          </div>
+
+        }
+
+
+        <!-- LIST VIEW -->
+
+        @case ('list') {
+
+          <div class="list">
+
+            @for (
+              employee of getFilteredEmployees();
+              track employee.id
+            ) {
+
+              <div class="list-item">
+
+                <strong>
+                  {{ employee.name }}
+                </strong>
+
+                <span>
+                  {{ employee.department }}
+                </span>
+
+                @if (employee.available) {
+
+                  <span class="available">
+                    ✔ Available
+                  </span>
+
+                } @else {
+
+                  <span class="unavailable">
+                    ✖ Unavailable
+                  </span>
+
+                }
+
+                <button
+                  (click)="toggleAvailability(employee)"
+                >
+                  Toggle
+                </button>
+
+              </div>
+
+            }
+
+          </div>
+
+        }
+
+      }
+
+    }
+
+  }
+
+</div>
